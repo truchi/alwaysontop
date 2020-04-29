@@ -1,6 +1,10 @@
+# Keep a copy of the original accept line
+zle -A accept-line before-alwaysontop-accept-line
+
 function alwaysontop_zcurses_init {
     zmodload zsh/curses
     zcurses init
+    zcurses delwin aotwin
     zcurses addwin aotwin $(tput lines) $(tput cols) 0 0
     zcurses end
 }
@@ -14,16 +18,16 @@ function alwaysontop_gototop {
 function alwaysontop_alwaysontop {
     if [[ "$ALWAYSONTOP" != "TRUE" ]]
     then
-        export ALWAYSONTOP="TRUE"
+        ALWAYSONTOP="TRUE"
 
         add-zsh-hook precmd alwaysontop_gototop
     fi
 }
 
 function alwaysontop_unalwaysontop {
-    if [[ "$ALWAYSONTOP" == "TRUE"  ]]
+    if [[ "$ALWAYSONTOP" != "FALSE"  ]]
     then
-        export ALWAYSONTOP="FALSE"
+        ALWAYSONTOP="FALSE"
 
         add-zsh-hook -d precmd alwaysontop_gototop
     fi
@@ -32,28 +36,31 @@ function alwaysontop_unalwaysontop {
 function alwaysontop_autoclear {
     if [[ "$AUTOCLEAR" != "TRUE" ]]
     then
-        export AUTOCLEAR="TRUE"
-        
-        # make a copy of the original accept line, and use our own widget which calls it after clearing the screen
-        zle -A accept-line original-accept-line
+        AUTOCLEAR="TRUE"
+
+        # Use our own widget which calls original accept line after clearing the screen
         function accept-line {
             zle clear-screen
-            zle original-accept-line
+            zle before-alwaysontop-accept-line
         }
+        
         zle -N accept-line
     fi
 }
 
-
 function alwaysontop_unautoclear {
     if [[ "$AUTOCLEAR" != "FALSE" ]]
     then
-        export AUTOCLEAR="FALSE"
+        AUTOCLEAR="FALSE"
 
-        zle -A original-accept-line accept-line
+        # Restore before-alwaysontop-accept-line
+        function accept-line {
+            zle before-alwaysontop-accept-line
+        }
+        
+        zle -N accept-line
     fi
 }
-
 
 # turn on both alwaysontop and autoclear
 function alwaysontop_autotop {
@@ -85,7 +92,7 @@ function alwaysontop_status {
 }
 
 function alwaysontop_help {
-    #alwaysontop_status
+    alwaysontop_status
     #
     #echo -e "    "
     #echo -e "    autotop           Turn ${COLOR_BGreen}ON${COLOR_off} always on top and autoclear"
@@ -102,21 +109,21 @@ echo \
 
 Usage: $1 (autotop|unautotop|alwaysontop|unalwaysontop|autoclear|unautoclear)
 
-  lol                        emit lol messages
-  -C, --config-file=FILE     use this user configuration file
-  -d, --debug                emit debugging messages
-  -D, --default              reset all options to their default values
-      --warnings[=WARNINGS]  enable warnings from groff
+Commands:
+  autotop           Turn ${COLOR_BGreen}ON${COLOR_off} always on top and autoclear
+  unautotop         Turn ${COLOR_BRed}OFF${COLOR_off} always on top and autoclear
 
-Mandatory or optional arguments to long options are also mandatory or optional
-for any corresponding short options.
+  alwaysontop       Turn ${COLOR_BGreen}ON${COLOR_off} always on top
+  unalwaysontop     Turn ${COLOR_BRed}OFF${COLOR_off} always on top
 
-Report bugs to cjwatson@debian.org."
+  autoclear         Turn ${COLOR_BGreen}ON${COLOR_off} clear-screen after each command.
+  unautoclear       Turn ${COLOR_BRed}OFF${COLOR_off} clear-screen after each command."
 }
 
 function alwaysontop {
     NAME=$0
-    
+    alwaysontop_zcurses_init
+
     case $1 in
         autotop) alwaysontop_autotop; alwaysontop_status
         ;;
