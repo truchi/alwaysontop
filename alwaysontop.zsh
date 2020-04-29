@@ -71,8 +71,20 @@ function unautotop {
 }
 
 function alwaysontop_help {
-    echo -e "${COLOR_BIPurple}always on top${COLOR_off} ${COLOR_BGreen}ON${COLOR_off}."
-    echo -e "${COLOR_BIPurple}always on top${COLOR_off} ${COLOR_BRed}OFF${COLOR_off}."
+    if [[ "$ALWAYSONTOP" = "TRUE" ]]
+    then
+        echo -e "${COLOR_BIPurple}Always on top:${COLOR_off} ${COLOR_BGreen}ON${COLOR_off}."
+    else
+        echo -e "${COLOR_BIPurple}Always on top:${COLOR_off} ${COLOR_BGreen}OFF${COLOR_off}."
+    fi
+
+    if [[ "$AUTOCLEAR" = "TRUE" ]]
+    then
+        echo -e "${COLOR_BIYellow}Auto clear:${COLOR_off} ${COLOR_BGreen}ON${COLOR_off}."
+    else
+        echo -e "${COLOR_BIYellow}Auto clear:${COLOR_off} ${COLOR_BGreen}OFF${COLOR_off}."
+    fi
+
     echo -e "alwaysontop.zsh - keep the prompt at the top of the screen."
     echo -e "https://github.com/truchi/alwaysontop"
     echo -e "Romain TRUCHI, forked from:"
@@ -93,6 +105,7 @@ function alwaysontop_help {
 
 COLOR_off='\033[0m' 
 COLOR_BIPurple='\033[1;95m' 
+COLOR_BIYellow='\033[1;93m'
 COLOR_BGreen='\033[1;32m'
 COLOR_BRed='\033[1;31m'
 
