@@ -1,6 +1,3 @@
-export PS1
-export PROMPT_COMMAND
-
 function _zcurses_init {
     zmodload zsh/curses
     zcurses init
@@ -18,6 +15,7 @@ function alwaysontop {
     if [[ "$ALWAYSONTOP" != "TRUE" ]]
     then
         export ALWAYSONTOP="TRUE"
+
         add-zsh-hook precmd _gototop
     fi
 }
@@ -27,6 +25,7 @@ function unalwaysontop {
     if [[ "$ALWAYSONTOP" == "TRUE"  ]]
     then
         export ALWAYSONTOP="FALSE"
+
         add-zsh-hook -d precmd _gototop
     fi
 }
@@ -49,8 +48,12 @@ function autoclear {
 
 
 function unautoclear {
-    export AUTOCLEAR="FALSE"
-    zle -A original-accept-line accept-line
+    if [[ "$AUTOCLEAR" != "FALSE" ]]
+    then
+        export AUTOCLEAR="FALSE"
+
+        zle -A original-accept-line accept-line
+    fi
 }
 
 
@@ -68,6 +71,8 @@ function unautotop {
 }
 
 function alwaysontop_help {
+    echo -e "${COLOR_BIPurple}always on top${COLOR_off} ${COLOR_BGreen}ON${COLOR_off}."
+    echo -e "${COLOR_BIPurple}always on top${COLOR_off} ${COLOR_BRed}OFF${COLOR_off}."
     echo -e "alwaysontop.zsh - keep the prompt at the top of the screen."
     echo -e "https://github.com/truchi/alwaysontop"
     echo -e "Romain TRUCHI, forked from:"
@@ -87,6 +92,7 @@ function alwaysontop_help {
 }
 
 COLOR_off='\033[0m' 
+COLOR_BIPurple='\033[1;95m' 
 COLOR_BGreen='\033[1;32m'
 COLOR_BRed='\033[1;31m'
 
